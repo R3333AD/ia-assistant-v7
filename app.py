@@ -607,5 +607,7 @@ def favicon():
 # ── Main ──
 if __name__ == "__main__":
     start_scheduler()
-    print("Agent IA v7 - http://localhost:8501", flush=True)
-    app.run(host="127.0.0.1", port=8501, debug=False, threaded=True)
+    port = int(os.getenv("PORT", "8501"))
+    host = os.getenv("HOST", "0.0.0.0")
+    print(f"Agent IA v7 - http://{host}:{port}", flush=True)
+    app.run(host=host, port=port, debug=False, threaded=True)
