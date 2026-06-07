@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
+<title>Agent IA</title>
+<link rel="stylesheet" href="/static/style.css">
+<style>:root{
+--bg:{{ theme.bg }};
+--text:{{ theme.text }};
+--accent:{{ theme.accent }};
+--box-bg:{{ theme.box_bg }};
+--box-border:{{ theme.box_border }};
+--subtitle:{{ theme.subtitle }};
+--error-border:{{ theme.error_border }};
+--error-text:{{ theme.error_text }};
+--doc-bg:{{ theme.doc_bg }};
+--doc-border:{{ theme.doc_border }};
+--doc-text:{{ theme.doc_text }};
+--status-plan:{{ theme.status_plan }};
+--status-plan-text:{{ theme.status_plan_text }};
+--status-en-cours:{{ theme.status_en_cours }};
+--status-en-cours-text:{{ theme.status_en_cours_text }};
+--status-pause:{{ theme.status_pause }};
+--status-pause-text:{{ theme.status_pause_text }};
+--status-termine:{{ theme.status_termine }};
+--status-termine-text:{{ theme.status_termine_text }};
+--status-abandon:{{ theme.status_abandon }};
+--status-abandon-text:{{ theme.status_abandon_text }};
+}</style>
+</head>
+<body>
+<div id="app">
+  <aside id="sidebar">
+    <div class="sidebar-header"><h2>🤖 Agent IA</h2> <small>Vision · 16 outils · Voix · Mémoire</small></div>
+
+    <div class="sidebar-section">
+      <div class="view-toggle">
+        <button class="btn active" data-view="chat" onclick="switchView('chat')">💬 Chat</button>
+        <button class="btn" data-view="dashboard" onclick="switchView('dashboard')">📊 Dashboard</button>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <hr>
+      <h3>💬 Conversations</h3>
+      <div class="action-row">
+        <button class="btn btn-primary btn-sm btn-flex" onclick="newSession()">➕ Nouvelle</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteCurrentSession()">🗑️</button>
+        <button class="btn btn-sm" onclick="exportSession()" title="Exporter">📥</button>
+      </div>
+      <div id="session-list"></div>
+    </div>
+
+    <div class="sidebar-section">
+      <hr>
+      <h3>🎭 Persona</h3>
+      <select id="persona-select" onchange="setPersona(this.value)"></select>
+      <button class="btn btn-sm btn-mt" onclick="showCustomPersonasModal()">✏️ Gérer les personas</button>
+    </div>
+
+    <div class="sidebar-section">
+      <h3>🎨 Thème</h3>
+      <select id="theme-select" onchange="setTheme(this.value)"></select>
+    </div>
+
+    <div class="sidebar-section">
+      <h3>👤 Mon profil</h3>
+      <details class="sidebar-expander">
+        <summary>✏️ Modifier</summary>
+        <div class="expander-body">
+          <input type="text" id="p-name" placeholder="Prénom">
+          <input type="text" id="p-job" placeholder="Métier">
+          <input type="text" id="p-interests" placeholder="Centres d'intérêt">
+          <textarea id="p-notes" placeholder="Notes" rows="2"></textarea>
+          <button class="btn btn-primary btn-sm" onclick="saveProfile()">💾 Sauvegarder</button>
+        </div>
+      </details>
+    </div>
+
+    <div class="sidebar-section">
+      <hr>
+      <h3>📋 Projets</h3>
+      <button class="btn btn-sm" onclick="showNewProjectModal()">➕ Nouveau projet</button>
+      <div id="project-list"></div>
+    </div>
+
+    <div class="sidebar-section">
+      <hr>
+      <h3>⏰ Tâches planifiées</h3>
+      <button class="btn btn-sm" onclick="showNewTaskModal()">➕ Nouvelle tâche</button>
+      <div id="task-list"></div>
+    </div>
+
+    <div class="sidebar-section">
+      <hr>
+      <h3>💬 Webhooks Discord</h3>
+      <button class="btn btn-sm" onclick="showWebhookModal()">➕ Ajouter webhook</button>
+      <div id="webhook-list"></div>
+    </div>
+
+    <div class="sidebar-section">
+      <hr>
+      <h3>▶️ Scripts (whitelist)</h3>
+      <button class="btn btn-sm" onclick="showWhitelistModal()">➕ Ajouter dossier</button>
+      <div id="whitelist-list"></div>
+    </div>
+
+    <div class="sidebar-section">
+      <hr>
+      <h3>👁️ Image / Fichier</h3>
+      <input type="file" id="file-upload" accept="image/*,.pdf,.csv,.txt,.md" onchange="uploadFile(this.files[0])">
+      <div id="upload-info" class="file-info"></div>
+    </div>
+
+    <div class="sidebar-section">
+      <hr>
+      <h3>🔊 Voix TTS</h3>
+      <select id="voice-select" onchange="setVoice(this.value)"></select>
+    </div>
+
+    <div class="sidebar-section">
+      <hr>
+      <h3>🧠 Mémoire</h3>
+      <div id="memory-info" class="file-info"></div>
+      <div class="action-row">
+        <button class="btn btn-sm" onclick="clearSessionMem()">🗑️ Session</button>
+        <button class="btn btn-sm btn-danger" onclick="clearAllMem()">🧹 Mémoire</button>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <hr>
+      <h3>📁 Documents générés</h3>
+      <div id="outputs-list"></div>
+    </div>
+  </aside>
+
+  <main id="main">
+    <div id="chat-header">
+      <h1>🤖 Agent IA</h1>
+      <div id="agent-status-bar">
+        <span id="badge-provider" class="badge">---</span>
+        <span id="badge-model" class="badge badge-secondary">---</span>
+        <span id="status-text">🟢 Prêt</span>
+      </div>
+      <div class="sub" id="persona-label">Assistant général · v7</div>
+      <div class="kbd">Ctrl+K focus · Ctrl+N nouvelle conv · Ctrl+R reset session</div>
+    </div>
+
+    <div id="messages">
+      <div class="welcome-msg">💬 Pose une question pour commencer</div>
+    </div>
+
+    <div id="input-area">
+      <div id="input-actions">
+        <button class="btn" id="mic-btn" onclick="toggleMic()" title="Microphone">🎤</button>
+        <button class="btn" onclick="document.getElementById('file-upload').click()" title="Joindre">📎</button>
+      </div>
+      <textarea id="chat-input" rows="1" placeholder="Pose ta question…" onkeydown="onInputKeydown(event)"></textarea>
+      <button class="btn btn-primary btn-send" onclick="sendMessage()">Envoyer</button>
+    </div>
+
+    <div id="dashboard">
+      <div class="metrics" id="dash-metrics"></div>
+      <div class="chart-section" id="dash-charts"></div>
+    </div>
+  </main>
+</div>
+
+<!-- Modals -->
+<div id="modal-container"></div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

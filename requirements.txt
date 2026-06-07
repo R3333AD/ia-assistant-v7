@@ -1,0 +1,34 @@
+groq>=0.9.0
+anthropic>=0.49.0
+python-dotenv>=1.0.0
+flask>=3.0.0
+PyPDF2>=3.0.0
+pandas>=2.0.0
+
+# Mémoire long terme
+chromadb>=0.5.0
+
+# Génération de documents
+reportlab>=4.0.0
+python-docx>=1.0.0
+openpyxl>=3.1.0
+python-pptx>=0.6.21
+
+# Voix (Sprint 1)
+edge-tts>=6.1.10
+
+# Tâches planifiées
+apscheduler>=3.10.0
+croniter>=1.4.0
+
+# Notifications Windows
+plyer>=2.1.0
+
+# Optionnel
+# tavily-python>=0.3.0
+# playwright>=1.40.0
+# faster-whisper>=1.0.0
+
+# Mode desktop (optionnel)
+# PyQt6
+# PyQt6-WebEngine
